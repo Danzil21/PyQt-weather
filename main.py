@@ -2,17 +2,17 @@ import datetime
 
 from PyQt5 import uic
 from PyQt5.QtCore import QSize
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QHBoxLayout, QLabel, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QPushButton
 import sys
 import requests as req
 from PyQt5.QtGui import QPixmap, QIcon
 import sqlite3
 
-from PyQt5.uic.properties import QtWidgets
-
 SCREEN_SIZE = [680, 480]
 
-DATABASE_NAME = 'base.db'
+with open('config.txt') as f:
+    DATABASE_NAME = f.read().split('=')[1]
+
 
 con = sqlite3.connect(DATABASE_NAME)
 cur = con.cursor()
@@ -30,7 +30,6 @@ class App(QMainWindow):
         self.update_btn.clicked.connect(self.update_info)
         self.detail_btn.clicked.connect(self.detail_info)
         self.clear_btn.clicked.connect(self.hide_all)
-        self.coords = []
         self.init_last_request()
 
     def init_last_request(self):
@@ -38,12 +37,13 @@ class App(QMainWindow):
         if request:
             self.get_info(input_city=request[0])
 
-    def update_info(self):
+    def update_info(self) -> None:
         request = cur.execute("SELECT city FROM recent_requests").fetchone()
         if request:
             self.get_info(input_city=request[0], without_recommendation=True)
+        return None
 
-    def hide_all(self):
+    def hide_all(self) -> None:
         #  Прячем всю информацию о погоде
         cur.execute("""DELETE FROM recent_requests""")
         self.text_weather_in_city.setText('Введите город')
@@ -57,6 +57,7 @@ class App(QMainWindow):
         self.detail_btn.hide()
         self.clear_btn.hide()
         self.status_button.hide()
+        return None
 
     def show_all(self, temp=None, temp_2=None,
                  humidity=None, wind_speed=None,
@@ -92,6 +93,7 @@ class App(QMainWindow):
         self.detail_btn.show()
         self.clear_btn.show()
         self.status_button.show()
+        return None
 
     def detail_info(self):
         request = cur.execute("SELECT city FROM recent_requests").fetchone()
@@ -111,6 +113,7 @@ class App(QMainWindow):
             msg.setIcon(QMessageBox.Warning)
 
             msg.exec_()
+        return None
 
     def get_weather_status(self, desc):
         if 'солнечно' in desc:
@@ -141,10 +144,25 @@ class App(QMainWindow):
                                                             "    color: red;\n"
                                                             "}\n"
                                                             "")
+                    msg = QMessageBox()
+                    msg.setWindowTitle("Погода")
+                    msg.setText("Такого города не существует")
+                    msg.setIcon(QMessageBox.Warning)
+                    msg.exec_()
                 elif weather["cod"] == "400":
                     self.text_weather_in_city.setText("Город не указан")
+                    msg = QMessageBox()
+                    msg.setWindowTitle("Погода")
+                    msg.setText("Город не указан")
+                    msg.setIcon(QMessageBox.Warning)
+                    msg.exec_()
                 else:
                     self.text_weather_in_city.setText("Error")
+                    msg = QMessageBox()
+                    msg.setWindowTitle("Погода")
+                    msg.setText("Неизвестная ошибка")
+                    msg.setIcon(QMessageBox.Warning)
+                    msg.exec_()
                 self.hide_all()
             except Exception as e:
                 print(e)
@@ -181,10 +199,12 @@ class App(QMainWindow):
                 msg.setIcon(QMessageBox.Warning)
 
                 msg.exec_()
+            return None
 
 
 def except_hook(cls, exception, traceback):
     sys.__excepthook__(cls, exception, traceback)
+    return None
 
 
 if __name__ == '__main__':
