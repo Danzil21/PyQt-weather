@@ -38,12 +38,13 @@ class App(QMainWindow):
         if request:
             self.get_info(input_city=request[0])
 
-    def update_info(self):
+    def update_info(self) -> None:
         request = cur.execute("SELECT city FROM recent_requests").fetchone()
         if request:
             self.get_info(input_city=request[0], without_recommendation=True)
+        return None
 
-    def hide_all(self):
+    def hide_all(self) -> None:
         #  Прячем всю информацию о погоде
         cur.execute("""DELETE FROM recent_requests""")
         self.text_weather_in_city.setText('Введите город')
@@ -57,6 +58,7 @@ class App(QMainWindow):
         self.detail_btn.hide()
         self.clear_btn.hide()
         self.status_button.hide()
+        return None
 
     def show_all(self, temp=None, temp_2=None,
                  humidity=None, wind_speed=None,
@@ -92,6 +94,7 @@ class App(QMainWindow):
         self.detail_btn.show()
         self.clear_btn.show()
         self.status_button.show()
+        return None
 
     def detail_info(self):
         request = cur.execute("SELECT city FROM recent_requests").fetchone()
@@ -111,6 +114,7 @@ class App(QMainWindow):
             msg.setIcon(QMessageBox.Warning)
 
             msg.exec_()
+        return None
 
     def get_weather_status(self, desc):
         if 'солнечно' in desc:
@@ -181,10 +185,12 @@ class App(QMainWindow):
                 msg.setIcon(QMessageBox.Warning)
 
                 msg.exec_()
+            return None
 
 
 def except_hook(cls, exception, traceback):
     sys.__excepthook__(cls, exception, traceback)
+    return None
 
 
 if __name__ == '__main__':
