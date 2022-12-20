@@ -30,7 +30,6 @@ class App(QMainWindow):
         self.update_btn.clicked.connect(self.update_info)
         self.detail_btn.clicked.connect(self.detail_info)
         self.clear_btn.clicked.connect(self.hide_all)
-        self.coords = []
         self.init_last_request()
 
     def init_last_request(self):
